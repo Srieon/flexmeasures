@@ -1,0 +1,1 @@
+pg_dump --file "/postgres/sql/V0001_.sql" --username "fm-dev-db-user" --quote-all-identifiers --format=p --no-owner --no-privileges --inserts --column-inserts --schema "public" "fm-dev-db"

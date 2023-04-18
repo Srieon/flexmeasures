@@ -119,10 +119,10 @@ class Config(object):
     )  # Time to live for UDI event ids of successful scheduling jobs. Set a negative timedelta to persist forever.
     FLEXMEASURES_JOB_CACHE_TTL: int = 3600  # Time to live for the job caching keys in seconds. Set a negative timedelta to persist forever.
     FLEXMEASURES_TASK_CHECK_AUTH_TOKEN: Optional[str] = None
-    FLEXMEASURES_REDIS_URL: str = "localhost"
+    FLEXMEASURES_REDIS_URL: str = "queue-db"
     FLEXMEASURES_REDIS_PORT: int = 6379
     FLEXMEASURES_REDIS_DB_NR: int = 0  # Redis per default has 16 databases, [0-15]
-    FLEXMEASURES_REDIS_PASSWORD: Optional[str] = None
+    FLEXMEASURES_REDIS_PASSWORD: str = "fm-redis-pass"
     FLEXMEASURES_JS_VERSIONS: dict = dict(
         vega="5.22.1",
         vegaembed="6.21.0",
