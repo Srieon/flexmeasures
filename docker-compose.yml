@@ -27,6 +27,7 @@ services:
       volumes:
         - ./ci/load-psql-extensions.sql:/docker-entrypoint-initdb.d/load-psql-extensions.sql
         - ./flyway/postgres:/postgres
+        - postgres:/var/lib/postgresql/data
 
     queue-db:
       image: redis
@@ -69,6 +70,7 @@ services:
       command:
       - |
         pip install -r instance/requirements.txt
+        
         gunicorn --bind 0.0.0.0:5000 --worker-tmp-dir /dev/shm --workers 2 --threads 4 wsgi:application
 
     worker:
@@ -134,4 +136,6 @@ services:
 volumes:
   redis-cache:
     driver: local
+  postgres:
+    external: false  
   flexmeasures-instance:
