@@ -938,6 +938,7 @@ INSERT INTO "public"."generic_asset" ("id", "name", "latitude", "longitude", "ge
 INSERT INTO "public"."generic_asset" ("id", "name", "latitude", "longitude", "generic_asset_type_id", "account_id", "attributes") VALUES (2, 'toy-building', 52.374, 4.88969, 6, 1, '{}');
 INSERT INTO "public"."generic_asset" ("id", "name", "latitude", "longitude", "generic_asset_type_id", "account_id", "attributes") VALUES (4, 'NL transmission zone', NULL, NULL, 7, NULL, '{}');
 INSERT INTO "public"."generic_asset" ("id", "name", "latitude", "longitude", "generic_asset_type_id", "account_id", "attributes") VALUES (3, 'toy-battery', 52.374, 4.88969, 5, 1, '{"capacity_in_mw": 0.5, "min_soc_in_mwh": 0.05, "max_soc_in_mwh": 0.45, "sensors_to_show": [3, 2]}');
+INSERT INTO "public"."generic_asset" ("id", "name", "latitude", "longitude", "generic_asset_type_id", "account_id", "attributes") VALUES (5, 'toy-solar-2', 52.374, 4.88969, 1, 1, '{}');
 
 
 --
@@ -1007,8 +1008,12 @@ INSERT INTO "public"."roles_users" ("id", "user_id", "role_id") VALUES (1, 1, 1)
 -- Data for Name: sensor; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO "public"."sensor" ("id", "name", "unit", "timezone", "event_resolution", "knowledge_horizon_fnc", "knowledge_horizon_par", "generic_asset_id", "attributes") VALUES (2, 'discharging', 'MW', 'Europe/Amsterdam', '00:15:00', 'ex_post', '{"ex_post_horizon": "P0D"}', 3, '{}');
-INSERT INTO "public"."sensor" ("id", "name", "unit", "timezone", "event_resolution", "knowledge_horizon_fnc", "knowledge_horizon_par", "generic_asset_id", "attributes") VALUES (3, 'Day ahead prices', 'EUR/MWh', 'Europe/Amsterdam', '01:00:00', 'x_days_ago_at_y_oclock', '{"x": 1, "y": 12, "z": "Europe/Paris"}', 4, '{}');
+INSERT INTO "public"."sensor" ("id", "name", "unit", "timezone", "event_resolution", "knowledge_horizon_fnc", "knowledge_horizon_par", "generic_asset_id", "attributes") VALUES (13, 'power-1', 'MW', 'Europe/Amsterdam', '00:15:00', 'ex_post', '{"ex_post_horizon": "P0D"}', 1, '{}');
+INSERT INTO "public"."sensor" ("id", "name", "unit", "timezone", "event_resolution", "knowledge_horizon_fnc", "knowledge_horizon_par", "generic_asset_id", "attributes") VALUES (14, 'power-2', 'MW', 'Europe/Amsterdam', '00:15:00', 'ex_post', '{"ex_post_horizon": "P0D"}', 5, '{}');
+INSERT INTO "public"."sensor" ("id", "name", "unit", "timezone", "event_resolution", "knowledge_horizon_fnc", "knowledge_horizon_par", "generic_asset_id", "attributes") VALUES (15, 'power-3', 'MW', 'Europe/Amsterdam', '00:15:00', 'ex_post', '{"ex_post_horizon": "P0D"}', 2, '{}');
+INSERT INTO "public"."sensor" ("id", "name", "unit", "timezone", "event_resolution", "knowledge_horizon_fnc", "knowledge_horizon_par", "generic_asset_id", "attributes") VALUES (11, 'price-solar-1', 'EUR/MWh', 'Europe/Amsterdam', '01:00:00', 'x_days_ago_at_y_oclock', '{"x": 1, "y": 12, "z": "Europe/Paris"}',1, '{}');
+INSERT INTO "public"."sensor" ("id", "name", "unit", "timezone", "event_resolution", "knowledge_horizon_fnc", "knowledge_horizon_par", "generic_asset_id", "attributes") VALUES (10, 'price-solar-2', 'EUR/MWh', 'Europe/Amsterdam', '01:00:00', 'x_days_ago_at_y_oclock', '{"x": 1, "y": 12, "z": "Europe/Paris"}', 5, '{}');
+INSERT INTO "public"."sensor" ("id", "name", "unit", "timezone", "event_resolution", "knowledge_horizon_fnc", "knowledge_horizon_par", "generic_asset_id", "attributes") VALUES (9, 'battery-cprice', 'EUR/MWh', 'Europe/Amsterdam', '01:00:00', 'x_days_ago_at_y_oclock', '{"x": 1, "y": 12, "z": "Europe/Paris"}', 3, '{}');
 
 
 --
