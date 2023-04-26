@@ -29,8 +29,8 @@ def device_scheduler(  # noqa C901
     device_constraints: List[pd.DataFrame],
     ems_constraints: pd.DataFrame,
     commitment_quantities: List[pd.Series],
-    commitment_downwards_deviation_price: Union[List[pd.Series], List[float]],
-    commitment_upwards_deviation_price: Union[List[pd.Series], List[float]],
+    commitment_downwards_deviation_price_array: List[Union[List[pd.Series], List[float]]],
+    commitment_upwards_deviation_price_array: List[Union[List[pd.Series], List[float]]],
 ) -> Tuple[List[pd.Series], float, SolverResults]:
     """This generic device scheduler is able to handle an EMS with multiple devices,
     with various types of constraints on the EMS level and on the device level,
