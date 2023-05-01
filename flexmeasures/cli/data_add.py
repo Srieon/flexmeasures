@@ -1102,6 +1102,9 @@ def add_schedule_for_storage(
     if roundtrip_efficiency is not None:
         roundtrip_efficiency = roundtrip_efficiency.magnitude / 100.0
 
+    print("consumption_price_sensor")
+    print(consumption_price_sensor)
+    print(consumption_price_sensor.id)
     scheduling_kwargs = dict(
         start=start,
         end=end,
@@ -1119,8 +1122,8 @@ def add_schedule_for_storage(
             "consumption-price-sensor": consumption_price_sensor.id,
             "production-price-sensor": production_price_sensor.id,
             "inflexible-device-sensors": [s.id for s in inflexible_device_sensors],
-            "consumption-price-sensors-per-device": {(power.id, price.id) for (power, price) in consumption_price_sensors_per_device.items()},
-            "production-price-sensors-per-device": {(power.id, price.id) for (power, price) in production_price_sensors_per_device.items()},
+            "consumption-price-sensors-per-device": {power.id: price.id for power, price in consumption_price_sensors_per_device.items()},
+            "production-price-sensors-per-device": {power.id: price.id for power, price in production_price_sensors_per_device.items()},
         },
     )
     if as_job:

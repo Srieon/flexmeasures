@@ -14,8 +14,8 @@ class FlexContextSchema(Schema):
         SensorIdField(), data_key="inflexible-device-sensors"
     )
     consumption_price_sensors_per_device = fields.Dict(
-        SensorIdField(), SensorIdField(), data_key="consumption-price-sensors-per-device"
+        keys=SensorIdField(), values=SensorIdField(), data_key="consumption-price-sensors-per-device"
     )
     production_price_sensors_per_device = fields.Dict(
-        SensorIdField(), SensorIdField(), data_key="production-price-sensors-per-device"
+        keys=SensorIdField(), values=SensorIdField(), data_key="production-price-sensors-per-device"
     )
