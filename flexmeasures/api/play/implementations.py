@@ -25,10 +25,11 @@ def restore_data_response():
     delete_data = True
     restore_structure = True
     restore_data = True
-
+    print("HI")
     try:
         backup_name = request.args.get("backup", request.json["backup"])
     except KeyError:
+        print('hey')
         return no_backup()
 
     # Make sure backup folder and files exist before restoring

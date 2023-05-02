@@ -29,8 +29,10 @@ def device_scheduler(  # noqa C901
     device_constraints: List[pd.DataFrame],
     ems_constraints: pd.DataFrame,
     commitment_quantities: List[pd.Series],
+    # commitment_downwards_deviation_price: Union[List[pd.Series], List[float]],
+    # commitment_upwards_deviation_price: Union[List[pd.Series], List[float]],
     commitment_downwards_deviation_price_array: List[Union[List[pd.Series], List[float]]],
-    commitment_upwards_deviation_price_array: List[Union[List[pd.Series], List[float]]],
+    commitment_upwards_deviation_price_array: List[Union[List[pd.Series], List[float]]]
 ) -> Tuple[List[pd.Series], float, SolverResults]:
     """This generic device scheduler is able to handle an EMS with multiple devices,
     with various types of constraints on the EMS level and on the device level,
@@ -64,10 +66,69 @@ def device_scheduler(  # noqa C901
     For now, we pass in the various constraints and prices as separate variables, from which we make a MultiIndex
     DataFrame. Later we could pass in a MultiIndex DataFrame directly.
     """
+    # Print device constraints
+    # for i, df in enumerate(device_constraints):
+    #     print(f"Device constraints {i}:")
+    #     print(df.to_string())
+    #     print()
+
+    # # Print EMS constraints
+    # print("EMS constraints:")
+    # print(ems_constraints.to_string())
+    # print()
+
+    # # Print commitment quantities
+    # for i, s in enumerate(commitment_quantities):
+    #     print(f"Commitment quantities {i}:")
+    #     print(s.to_string())
+    #     print()
+
+    # # Print downwards deviation prices
+    # for i, series_or_float in enumerate(commitment_downwards_deviation_price):
+    #     print(f"Commitment downwards deviation price {i}:")
+    #     if isinstance(series_or_float, pd.Series):
+    #         print(series_or_float.to_string())
+    #     else:
+    #         print(series_or_float)
+    #     print()
+
+    # # Print upwards deviation prices
+    # for i, series_or_float in enumerate(commitment_upwards_deviation_price):
+    #     print(f"Commitment upwards deviation price {i}:")
+    #     if isinstance(series_or_float, pd.Series):
+    #         print(series_or_float.to_string())
+    #     else:
+    #         print(series_or_float)
+    #     print()
+    
+    # # Print downwards deviation prices
+    # print("commitment_downwards_deviation_price")
+    # print(commitment_upwards_deviation_price_array)
+    # for commitment_downwards_deviation_price in commitment_downwards_deviation_price_array:
+    #     for i, series_or_float in enumerate(commitment_downwards_deviation_price):
+    #         print(f"Commitment downwards deviation price {i}:")
+    #         if isinstance(series_or_float, pd.Series):
+    #             print(series_or_float.to_string())
+    #         else:
+    #             print(series_or_float)
+    #         print()
+    #     print()    
+
+    # # Print upwards deviation prices
+    print("commitment_upwards_deviation_price from linear_optimization")
+    # for commitment_upwards_deviation_price in commitment_upwards_deviation_price_array:
+    #     for i, series_or_float in enumerate(commitment_upwards_deviation_price):
+    #         print(f"Commitment upwards deviation price {i}:")
+    #         if isinstance(series_or_float, pd.Series):
+    #             print(series_or_float.to_string())
+    #         else:
+    #             print(series_or_float)
+    #         print()
+    #     print()    
 
     # If the EMS has no devices, don't bother
-    if len(device_constraints) == 0:
-        return [], 0, SolverResults()
+    # if len(device_constraints) == 0:
+    return [], 0, SolverResults()
 
     # Check if commitments have the same time window and resolution as the constraints
     start = device_constraints[0].index.to_pydatetime()[0]
@@ -88,23 +149,43 @@ def device_scheduler(  # noqa C901
                 % (resolution, resolution_c)
             )
 
+    # if len(commitment_downwards_deviation_price) != 0:
+    #     if all(
+    #         isinstance(price, float) for price in commitment_downwards_deviation_price
+    #     ):
+    #         commitment_downwards_deviation_price = [
+    #             initialize_series(price, start, end, resolution)
+    #             for price in commitment_downwards_deviation_price
+    #         ]
+    # if len(commitment_upwards_deviation_price) != 0:
+    #     if all(
+    #         isinstance(price, float) for price in commitment_upwards_deviation_price
+    #     ):
+    #         commitment_upwards_deviation_price = [
+    #             initialize_series(price, start, end, resolution)
+    #             for price in commitment_upwards_deviation_price
+    #         ]
+
     # Turn prices per commitment into prices per commitment flow
-    if len(commitment_downwards_deviation_price) != 0:
-        if all(
-            isinstance(price, float) for price in commitment_downwards_deviation_price
-        ):
-            commitment_downwards_deviation_price = [
-                initialize_series(price, start, end, resolution)
-                for price in commitment_downwards_deviation_price
-            ]
-    if len(commitment_upwards_deviation_price) != 0:
-        if all(
-            isinstance(price, float) for price in commitment_upwards_deviation_price
-        ):
-            commitment_upwards_deviation_price = [
-                initialize_series(price, start, end, resolution)
-                for price in commitment_upwards_deviation_price
-            ]
+    for i in range(0, len(commitment_downwards_deviation_price_array)):
+        if len(commitment_downwards_deviation_price_array[i]) != 0:
+            if all(
+                isinstance(price, float) for price in commitment_downwards_deviation_price_array[i]
+            ):
+                commitment_downwards_deviation_price_array[i] = [
+                    initialize_series(price, start, end, resolution)
+                    for price in commitment_downwards_deviation_price_array[i]
+                ]
+
+    for i in range(0, len(commitment_upwards_deviation_price_array)):            
+        if len(commitment_upwards_deviation_price_array[i]) != 0:
+            if all(
+                isinstance(price, float) for price in commitment_upwards_deviation_price_array[i]
+            ):
+                commitment_upwards_deviation_price_array[i] = [
+                    initialize_series(price, start, end, resolution)
+                    for price in commitment_upwards_deviation_price_array[i]
+                ]
 
     model = ConcreteModel()
 
@@ -117,10 +198,12 @@ def device_scheduler(  # noqa C901
 
     # Add parameters
     def price_down_select(m, c, j):
-        return commitment_downwards_deviation_price[c].iloc[j]
+        # return commitment_downwards_deviation_price[c].iloc[j]
+        return [commitment_downwards_deviation_price[c].iloc[j] for commitment_downwards_deviation_price in commitment_downwards_deviation_price_array]
 
     def price_up_select(m, c, j):
-        return commitment_upwards_deviation_price[c].iloc[j]
+        # return commitment_upwards_deviation_price[c].iloc[j]
+        return [commitment_upwards_deviation_price[c].iloc[j] for commitment_upwards_deviation_price in commitment_upwards_deviation_price_array]
 
     def commitment_quantity_select(m, c, j):
         return commitment_quantities[c].iloc[j]
@@ -226,6 +309,25 @@ def device_scheduler(  # noqa C901
         model.c, model.j, domain=NonNegativeReals, initialize=0
     )
 
+    # Print the indices of the RangeSets
+    # print("Device set:", model.d.value)
+    # print("Datetime set:", model.j.value)
+    # print("Commitment set:", model.c.value)
+
+    # # Print the values of the parameters
+    print("Upward price:", model.up_price.extract_values())
+    print("Downward price:", model.down_price.extract_values())
+    # print("Commitment quantity:", model.commitment_quantity.extract_values())
+
+    # print("Device maximum power output:", model.device_max.extract_values())
+    # print("Device minimum power output:", model.device_min.extract_values())
+    # print("Device maximum ramping rate:", model.device_derivative_max.extract_values())
+    # print("Device minimum ramping rate:", model.device_derivative_min.extract_values())
+    # print("EMS maximum ramping rate:", model.ems_derivative_max.extract_values())
+    # print("EMS minimum ramping rate:", model.ems_derivative_min.extract_values())
+    # print("Device ramping down efficiency:", model.device_derivative_down_efficiency.extract_values())
+    # print("Device ramping up efficiency:", model.device_derivative_up_efficiency.extract_values())
+
     # Add constraints as a tuple of (lower bound, value, upper bound)
     def device_bounds(m, d, j):
         """Apply efficiencies to conversion from flow to stock change and vice versa."""
@@ -302,13 +404,43 @@ def device_scheduler(  # noqa C901
         model.d, model.j, rule=device_derivative_equalities
     )
 
+    # Print the values of the constraints
+    # print("Device energy bounds:")
+    # for i, j in model.device_energy_bounds:
+    #     print(f"Device {i} at datetime {j}:", model.device_energy_bounds[i, j]())
+
+    # print("Device power bounds:")
+    # for i, j in model.device_power_bounds:
+    #     print(f"Device {i} at datetime {j}:", model.device_power_bounds[i, j]())
+
+    # print("Device power down bounds:")
+    # for i, j in model.device_power_down_bounds:
+    #     print(f"Device {i} at datetime {j}:", model.device_power_down_bounds[i, j]())
+
+    # print("Device power up bounds:")
+    # for i, j in model.device_power_up_bounds:
+    #     print(f"Device {i} at datetime {j}:", model.device_power_up_bounds[i, j]())
+
+    # print("EMS power bounds:")
+    # for j in model.ems_power_bounds:
+    #     print(f"EMS at datetime {j}:", model.ems_power_bounds[j]())
+
+    # print("EMS power commitment equalities:")
+    # for j in model.ems_power_commitment_equalities:
+    #     print(f"EMS at datetime {j}:", model.ems_power_commitment_equalities[j]())
+
+    # print("Device power equalities:")
+    # for i, j in model.device_power_equalities:
+    #     print(f"Device {i} at datetime {j}:", model.device_power_equalities[i, j]())
+
     # Add objective
     def cost_function(m):
         costs = 0
-        for c in m.c:
-            for j in m.j:
-                costs += m.commitment_downwards_deviation[c, j] * m.down_price[c, j]
-                costs += m.commitment_upwards_deviation[c, j] * m.up_price[c, j]
+        for i in len(m.down_price):
+            for c in m.c:
+                for j in m.j:
+                    costs += m.commitment_downwards_deviation[c, j] * m.down_price[i][c, j]
+                    costs += m.commitment_upwards_deviation[c, j] * m.up_price[i][c, j]
         return costs
 
     model.costs = Objective(rule=cost_function, sense=minimize)

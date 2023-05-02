@@ -91,6 +91,7 @@ services:
         LOGGING_LEVEL: INFO 
       volumes:
         # a place for config and plugin code
+        - ./do.sh:/app/do.sh
         - ./power-1.csv:/app/power-1.csv
         - ./power-2.csv:/app/power-2.csv
         - ./power-3.csv:/app/power-3.csv

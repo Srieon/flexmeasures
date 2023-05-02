@@ -1037,8 +1037,8 @@ def add_schedule_for_storage(
     production_price_sensor: Sensor,
     optimization_context_sensor: Sensor,
     inflexible_device_sensors: list[Sensor],
-    consumption_price_sensors_per_device: dict(Sensor, Sensor),
-    production_price_sensors_per_device: dict(Sensor, Sensor),
+    consumption_price_sensor_per_device: dict(Sensor, Sensor),
+    production_price_sensor_per_device: dict(Sensor, Sensor),
     start: datetime,
     duration: timedelta,
     soc_at_start: ur.Quantity,
@@ -1102,9 +1102,15 @@ def add_schedule_for_storage(
     if roundtrip_efficiency is not None:
         roundtrip_efficiency = roundtrip_efficiency.magnitude / 100.0
 
-    print("consumption_price_sensor")
-    print(consumption_price_sensor)
-    print(consumption_price_sensor.id)
+    # print("consumption_price_sensor")
+    # print(consumption_price_sensor)
+    # print(consumption_price_sensor.id)
+
+    print("downdeviation_price_array in data_add")
+    # print(production_price_sensor_per_device.items())
+    print("upwards_deviation_price_array in data_add")
+    # print(consumption_price_sensor_per_device.items()) 
+
     scheduling_kwargs = dict(
         start=start,
         end=end,
@@ -1122,8 +1128,8 @@ def add_schedule_for_storage(
             "consumption-price-sensor": consumption_price_sensor.id,
             "production-price-sensor": production_price_sensor.id,
             "inflexible-device-sensors": [s.id for s in inflexible_device_sensors],
-            "consumption-price-sensors-per-device": {power.id: price.id for power, price in consumption_price_sensors_per_device.items()},
-            "production-price-sensors-per-device": {power.id: price.id for power, price in production_price_sensors_per_device.items()},
+            "consumption-price-sensor-per-device": {power.id: price.id for power, price in consumption_price_sensor_per_device.items()},
+            "production-price-sensor-per-device": {power.id: price.id for power, price in production_price_sensor_per_device.items()},
         },
     )
     if as_job:

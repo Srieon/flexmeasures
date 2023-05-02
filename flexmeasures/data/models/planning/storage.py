@@ -86,6 +86,11 @@ class StorageScheduler(Scheduler):
         #     sensor=sensor,
         #     allow_trimmed_query_window=False,
         # )
+
+        # print("downdeviation_price_array in storage")
+        # print(production_price_sensor_per_device.items())
+        # print("upwards_deviation_price_array in storgae")
+        # print(consumption_price_sensor_per_device.items()) 
                 
         up_deviation_prices_array = []
         for power_sensor, price_sensor in consumption_price_sensor_per_device.items():
@@ -146,6 +151,13 @@ class StorageScheduler(Scheduler):
         #     down_deviation_prices.loc[start : end - resolution]["event_value"]
         # ]
 
+
+
+        # print("downdeviation_price_array")
+        # print(down_deviation_prices_array)
+        # print("upwards_deviation_price_array")
+        # print(up_deviation_prices_array) 
+
         commitment_upwards_deviation_price_array = []
         for up_deviation_price in up_deviation_prices_array:
             commitment_upwards_deviation_price = [
@@ -159,6 +171,12 @@ class StorageScheduler(Scheduler):
                 down_deviation_price.loc[start : end - resolution]["event_value"]
             ]
             commitment_downwards_deviation_price_array.append(commitment_downwards_deviation_price)
+
+        # print("commitment_downwards_deviation_price_array")
+        # print(commitment_downwards_deviation_price_array)
+        # print("commitment_upwards_deviation_price_array")
+        # print(commitment_upwards_deviation_price_array) 
+
 
         # Set up device constraints: only one scheduled flexible device for this EMS (at index 0), plus the forecasted inflexible devices (at indices 1 to n).
         columns = [
