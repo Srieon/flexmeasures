@@ -3,6 +3,7 @@ from typing import List, Tuple, Union
 from flask import current_app
 import pandas as pd
 import numpy as np
+from typing import Dict
 from pandas.tseries.frequencies import to_offset
 from pyomo.core import (
     ConcreteModel,
@@ -29,6 +30,8 @@ def device_scheduler(  # noqa C901
     device_constraints: List[pd.DataFrame],
     ems_constraints: pd.DataFrame,
     commitment_quantities: List[pd.Series],
+    consumption_price_sensor_per_device: Dict[int, int],
+    production_price_sensor_per_device: Dict[int, int],
     # commitment_downwards_deviation_price: Union[List[pd.Series], List[float]],
     # commitment_upwards_deviation_price: Union[List[pd.Series], List[float]],
     commitment_downwards_deviation_price_array: List[Union[List[pd.Series], List[float]]],
@@ -127,8 +130,8 @@ def device_scheduler(  # noqa C901
     #     print()    
 
     # If the EMS has no devices, don't bother
-    # if len(device_constraints) == 0:
-    return [], 0, SolverResults()
+    if len(device_constraints) == 0:
+        return [], 0, SolverResults()
 
     # Check if commitments have the same time window and resolution as the constraints
     start = device_constraints[0].index.to_pydatetime()[0]
@@ -205,6 +208,9 @@ def device_scheduler(  # noqa C901
         # return commitment_upwards_deviation_price[c].iloc[j]
         return [commitment_upwards_deviation_price[c].iloc[j] for commitment_upwards_deviation_price in commitment_upwards_deviation_price_array]
 
+    model.up_price = Param(model.c, model.j, initialize=price_up_select)
+    model.down_price = Param(model.c, model.j, initialize=price_down_select)
+    
     def commitment_quantity_select(m, c, j):
         return commitment_quantities[c].iloc[j]
 
@@ -229,16 +235,29 @@ def device_scheduler(  # noqa C901
         equal_v = device_constraints[d]["derivative equals"].iloc[j]
         if np.isnan(max_v) and np.isnan(equal_v):
             return infinity
-        else:
-            return np.nanmin([max_v, equal_v])
+        for (c,ji) in model.up_price:
+            # print(c)
+            for commitment_upwards_deviation_price in commitment_upwards_deviation_price_array:
+                if (model.up_price[(c,j)] == commitment_upwards_deviation_price[(consumption_price_sensor_per_device[d],c)].iloc[j]):
+                    # print(max_v)
+                    # print(equal_v)
+                    return np.nanmin([max_v, equal_v])
+
+        return infinity
 
     def device_derivative_min_select(m, d, j):
         min_v = device_constraints[d]["derivative min"].iloc[j]
         equal_v = device_constraints[d]["derivative equals"].iloc[j]
         if np.isnan(min_v) and np.isnan(equal_v):
             return -infinity
-        else:
-            return np.nanmax([min_v, equal_v])
+        for (c,ji) in model.down_price:
+            for commitment_downwards_deviation_price in commitment_downwards_deviation_price_array:
+                if (model.down_price[(c,j)] == commitment_downwards_deviation_price[production_price_sensor_per_device[d],c].iloc[j]):
+            # print(c)
+            # if (model.down_price[c] == consumption_price_sensor_per_device[equal_v]):
+                    return np.nanmin([min_v, equal_v])
+              
+        return -infinity
 
     def ems_derivative_max_select(m, j):
         v = ems_constraints["derivative max"].iloc[j]
@@ -274,8 +293,6 @@ def device_scheduler(  # noqa C901
             return 1
         return eff
 
-    model.up_price = Param(model.c, model.j, initialize=price_up_select)
-    model.down_price = Param(model.c, model.j, initialize=price_down_select)
     model.commitment_quantity = Param(
         model.c, model.j, initialize=commitment_quantity_select
     )
@@ -315,8 +332,8 @@ def device_scheduler(  # noqa C901
     # print("Commitment set:", model.c.value)
 
     # # Print the values of the parameters
-    print("Upward price:", model.up_price.extract_values())
-    print("Downward price:", model.down_price.extract_values())
+    # print("Upward price:", model.up_price.extract_values())
+    # print("Downward price:", model.down_price.extract_values())
     # print("Commitment quantity:", model.commitment_quantity.extract_values())
 
     # print("Device maximum power output:", model.device_max.extract_values())
@@ -434,13 +451,14 @@ def device_scheduler(  # noqa C901
     #     print(f"Device {i} at datetime {j}:", model.device_power_equalities[i, j]())
 
     # Add objective
+    
     def cost_function(m):
         costs = 0
-        for i in len(m.down_price):
-            for c in m.c:
-                for j in m.j:
-                    costs += m.commitment_downwards_deviation[c, j] * m.down_price[i][c, j]
-                    costs += m.commitment_upwards_deviation[c, j] * m.up_price[i][c, j]
+        for c in m.c:
+            for j in m.j:
+                for i in range(0,len(m.down_price[c,j])):
+                    costs += m.commitment_downwards_deviation[c, j] * m.down_price[c, j][i]
+                    costs += m.commitment_upwards_deviation[c, j] * m.up_price[c, j][i]
         return costs
 
     model.costs = Objective(rule=cost_function, sense=minimize)
@@ -466,5 +484,7 @@ def device_scheduler(  # noqa C901
     # model.pprint()
     # model.display()
     # print(results.solver.termination_condition)
-    # print(planned_costs)
+    print(planned_costs)
+    print(results)
+    # print(planned_power_per_device)
     return planned_power_per_device, planned_costs, results

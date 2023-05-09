@@ -1106,9 +1106,9 @@ def add_schedule_for_storage(
     # print(consumption_price_sensor)
     # print(consumption_price_sensor.id)
 
-    print("downdeviation_price_array in data_add")
+    # print("downdeviation_price_array in data_add")
     # print(production_price_sensor_per_device.items())
-    print("upwards_deviation_price_array in data_add")
+    # print("upwards_deviation_price_array in data_add")
     # print(consumption_price_sensor_per_device.items()) 
 
     scheduling_kwargs = dict(

@@ -119,6 +119,10 @@ class StorageScheduler(Scheduler):
             )
             down_deviation_prices_array.append(down_deviation_prices)
 
+        # print("downdeviation_price_array in storage")
+        # print(down_deviation_prices_array)
+        # print("upwards_deviation_price_array in storgae")
+        # print(up_deviation_prices_array) 
         start = pd.Timestamp(start).tz_convert("UTC")
         end = pd.Timestamp(end).tz_convert("UTC")
 
@@ -133,12 +137,12 @@ class StorageScheduler(Scheduler):
         #     )
         if prefer_charging_sooner:
             for i in range(0, len(up_deviation_prices_array)):
-                up_deviation_prices[i] = add_tiny_price_slope(
-                    up_deviation_prices[i], "event_value"
+                up_deviation_prices_array[i] = add_tiny_price_slope(
+                    up_deviation_prices_array[i], "event_value"
                 )
             for i in range(0, len(down_deviation_prices_array)): 
-                down_deviation_prices[i] = add_tiny_price_slope(
-                    down_deviation_prices[i], "event_value"
+                down_deviation_prices_array[i] = add_tiny_price_slope(
+                    down_deviation_prices_array[i], "event_value"
                 )        
         # Set up commitments to optimise for
         commitment_quantities = [initialize_series(0, start, end, self.resolution)]
@@ -172,10 +176,10 @@ class StorageScheduler(Scheduler):
             ]
             commitment_downwards_deviation_price_array.append(commitment_downwards_deviation_price)
 
-        # print("commitment_downwards_deviation_price_array")
-        # print(commitment_downwards_deviation_price_array)
-        # print("commitment_upwards_deviation_price_array")
-        # print(commitment_upwards_deviation_price_array) 
+        print("commitment_downwards_deviation_price_array")
+        print(commitment_downwards_deviation_price_array)
+        print("commitment_upwards_deviation_price_array")
+        print(commitment_upwards_deviation_price_array) 
 
 
         # Set up device constraints: only one scheduled flexible device for this EMS (at index 0), plus the forecasted inflexible devices (at indices 1 to n).
@@ -248,6 +252,8 @@ class StorageScheduler(Scheduler):
             device_constraints,
             ems_constraints,
             commitment_quantities,
+            consumption_price_sensor_per_device,
+            production_price_sensor_per_device,
             commitment_downwards_deviation_price_array,
             commitment_upwards_deviation_price_array,
         )
